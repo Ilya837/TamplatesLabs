@@ -30,20 +30,20 @@ namespace Visual
             this.g = g;
         }
 
-        public void DrawLine(Pen p, IPoint startPoint, IPoint endPoint)
+        public void DrawLine(Pen p, Line l)
         {
-            System.Drawing.Point sp = new System.Drawing.Point((Int32)startPoint.GetX(), (Int32)startPoint.GetY());
-            System.Drawing.Point ep = new System.Drawing.Point((Int32)endPoint.GetX(), (Int32)endPoint.GetY());
+            System.Drawing.Point sp = new System.Drawing.Point((Int32)l.GetA().GetX(), (Int32)l.GetA().GetY());
+            System.Drawing.Point ep = new System.Drawing.Point((Int32)l.GetB().GetX(), (Int32)l.GetB().GetY());
 
             g.DrawLine(Pens.Black, sp, ep);
         }
 
-        public void DrawBezier(Pen p, IPoint a, IPoint c, IPoint d, IPoint b)
+        public void DrawBezier(Pen p, Bezier b)
         {
-            System.Drawing.Point ap = new System.Drawing.Point((Int32)a.GetX(), (Int32)a.GetY());
-            System.Drawing.Point bp = new System.Drawing.Point((Int32)b.GetX(), (Int32)b.GetY());
-            System.Drawing.Point cp = new System.Drawing.Point((Int32)c.GetX(), (Int32)c.GetY());
-            System.Drawing.Point dp = new System.Drawing.Point((Int32)d.GetX(), (Int32)d.GetY());
+            System.Drawing.Point ap = new System.Drawing.Point((Int32)b.GetA().GetX(), (Int32)b.GetA().GetY());
+            System.Drawing.Point bp = new System.Drawing.Point((Int32)b.GetB().GetX(), (Int32)b.GetB().GetY());
+            System.Drawing.Point cp = new System.Drawing.Point((Int32)b.GetC().GetX(), (Int32)b.GetC().GetY());
+            System.Drawing.Point dp = new System.Drawing.Point((Int32)b.GetD().GetX(), (Int32)b.GetD().GetY());
 
             g.DrawBezier(p, ap, cp, dp, bp);
         }
@@ -66,7 +66,7 @@ namespace Visual
             {
                 GraphicsAdaptor ga = new GraphicsAdaptor(e.Graphics);
 
-                ga.DrawLine(Pens.Black, l.GetA(), l.GetB());
+                ga.DrawLine(Pens.Black, l);
             };
 
             Console.WriteLine("Draw Line");
@@ -94,7 +94,7 @@ namespace Visual
 
                 GraphicsAdaptor ga = new GraphicsAdaptor(e.Graphics);
 
-                ga.DrawBezier(Pens.Black, b.GetA(),b.GetC(),b.GetD(),b.GetB());
+                ga.DrawBezier(Pens.Black, b);
 
 
                 //int j = 1;
