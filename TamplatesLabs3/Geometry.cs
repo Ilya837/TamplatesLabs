@@ -101,7 +101,7 @@ namespace Geometry
 
     public class Line : ACurve
     {
-        public Line(IPoint a, IPoint b) : base(a, b) { }
+        public Line(IPoint a, IPoint b) : base(a,b) {}
 
         public override void GetPoint(double t, out IPoint p)
         {
@@ -113,22 +113,22 @@ namespace Geometry
             }
 
             p.SetX((1 - t) * a.GetX() + t * b.GetX());
-            p.SetY((1 - t) * a.GetY() + t * b.GetY());
+            p.SetY((1 - t) * a.GetY()+ t * b.GetY());
             return;
         }
 
         public override ICurve GetCopy()
         {
-            Line l = new Line(a, b);
+            Line l = new Line(a,b);
             return l;
         }
 
     }
 
-    public class Bezier : ACurve
+    public class Bezier: ACurve
     {
         private IPoint c, d;
-        public Bezier(IPoint a, IPoint c, IPoint d, IPoint b) : base(a, b) {
+        public Bezier(IPoint a,IPoint c, IPoint d, IPoint b) : base(a, b) {
 
             this.c = new Point();
             this.c.SetX(c.GetX());
@@ -178,7 +178,7 @@ namespace Geometry
 
         public override ICurve GetCopy()
         {
-            Bezier clone = new Bezier(a, c, d, b);
+            Bezier clone = new Bezier(a,c,d,b);
             return clone;
         }
     }
@@ -196,7 +196,7 @@ namespace Geometry
 
         public ICurve GetCopy()
         {
-            return new Chain(curve1, curve2);
+            return new Chain(curve1,curve2);
         }
 
         public void GetPoint(double t, out IPoint p)
@@ -208,11 +208,11 @@ namespace Geometry
                 return; //как предупредить об ошибке?
             }
 
-            if (t <= 0.5) curve1.GetPoint(t * 2, out p);
-            else curve2.GetPoint(t * 2 - 1, out p);
+            if(t <= 0.5) curve1.GetPoint(t * 2,out p);
+            else curve2.GetPoint(t*2 -1, out p);
             return;
         }
-
+    
         public ICurve GetCurve1()
         {
             return curve1.GetCopy();
@@ -224,5 +224,59 @@ namespace Geometry
         }
     }
 
-    
+    public class Fragment : ICurve
+    {
+
+        private ICurve curve;
+        private double start, finish;
+
+        Fragment(ICurve curve, double start, double finish)
+        {
+
+            // Проверка на принадлежность start и finish [0,1]
+            this.start = start;
+            this.finish = finish;
+            this.curve = curve.GetCopy();
+        }
+
+        public ICurve GetCopy()
+        {
+            return new Fragment(curve, start, finish);
+        }
+
+        public void GetPoint(double t, out IPoint p)
+        {
+            curve.GetPoint(start + (finish - start) * t, out p);
+            return;
+        }
+    }
+
+    public class MoveTo : ICurve
+    {
+        private IPoint p;
+        private ICurve curve;
+        public MoveTo(ICurve curve, IPoint point)
+        {
+            this.p = point.GetCopy();
+            this.curve = curve.GetCopy();
+        }
+
+        public ICurve GetCopy()
+        {
+            return new MoveTo(curve, p);
+        }
+
+        public void GetPoint(double t, out IPoint p)
+        {
+            curve.GetPoint(0, out p);
+            double X = this.p.GetX() - p.GetX();
+            double Y = this.p.GetY() - p.GetY();
+            curve.GetPoint(t, out p);
+            p.SetX(p.GetX() + X);
+            p.SetY(p.GetY() + Y);
+
+            return;
+        }
+    }
+
 }
