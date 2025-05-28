@@ -1,0 +1,28 @@
+﻿<Window x:Class="TamplatesLabs5_2.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TamplatesLabs5_2"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+
+    <Window.CommandBindings>
+        <CommandBinding 
+        Command="ApplicationCommands.Undo"
+        Executed="UndoCommand_Executed"/>
+    </Window.CommandBindings>
+
+    <Window.InputBindings>
+        <KeyBinding 
+        Command="ApplicationCommands.Undo" 
+        Gesture="Ctrl+Z"/>
+    </Window.InputBindings>
+
+    <Grid x:Name="Canvas">
+        <Ellipse x:Name="Ellipse1" HorizontalAlignment="Left" Height="189" Margin="34,204,0,0" Stroke="Black" VerticalAlignment="Top" Width="190" Fill="White" MouseEnter="Ellipse1_MouseEnter" MouseLeave="Ellipse1_MouseLeave" MouseUp="Ellipse1_MouseUp" MouseDown="Ellipse1_MouseDown" AllowDrop="True" DragOver="Ellipse1_DragOver" MouseMove="Ellipse1_MouseMove" Drop="Ellipse1_Drop"/>
+        <Ellipse x:Name="Ellipse2" HorizontalAlignment="Left" Height="189" Margin="274,28,0,0" Stroke="Black" VerticalAlignment="Top" Width="190" Fill="White" MouseEnter="Ellipse2_MouseEnter" MouseLeave="Ellipse2_MouseLeave" MouseDown="Ellipse2_MouseDown" MouseUp="Ellipse2_MouseUp" AllowDrop="True" DragOver="Ellipse2_DragOver" MouseMove="Ellipse2_MouseMove" Drop="Ellipse2_Drop"/>
+        <Ellipse x:Name="Ellipse3" HorizontalAlignment="Left" Height="188" Margin="560,204,0,0" Stroke="Black" VerticalAlignment="Top" Width="190" Fill="White" MouseEnter="Ellipse3_MouseEnter" MouseLeave="Ellipse3_MouseLeave" MouseDown="Ellipse3_MouseDown" MouseUp="Ellipse3_MouseUp" MouseMove="Ellipse3_MouseMove" AllowDrop="True" DragOver="Ellipse3_DragOver" Drop="Ellipse3_Drop"/>
+
+    </Grid>
+</Window>
