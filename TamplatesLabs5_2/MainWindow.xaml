@@ -16,7 +16,7 @@
     <Window.InputBindings>
         <KeyBinding 
         Command="ApplicationCommands.Undo" 
-        Gesture="Ctrl+Z"/>
+        Gesture="Ctrl+V"/>
     </Window.InputBindings>
 
     <Grid x:Name="Canvas">

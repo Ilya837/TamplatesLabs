@@ -19,13 +19,14 @@ namespace TamplatesLabs2
     {
         int Counter = 0;
 
-        Panel panel = new Panel();
+        Panel panel;
 
-        List<Tuple<VisualCurve, AGraphicsAdaptor>> panel1Curves = new List<Tuple<VisualCurve, AGraphicsAdaptor>>();
-        List<Tuple<VisualCurve, AGraphicsAdaptor>> panel2Curves = new List<Tuple<VisualCurve, AGraphicsAdaptor>>();
+        List<VisualCurve> panel1Curves = new List<VisualCurve>();
+        List<VisualCurve> panel2Curves = new List<VisualCurve>();
         public Dialog()
         {
             InitializeComponent();
+            panel = panel1;
         }
 
         private void splitContainer1_Panel1_Paint(object sender, PaintEventArgs e)
@@ -43,12 +44,9 @@ namespace TamplatesLabs2
 
             SvgGroup group = new SvgGroup();
 
-            var graphics = panel1.CreateGraphics();
-
             panel1Curves.ForEach(curve =>
             {
-
-                group.Children.Add(curve.Item1.GetSVGElement(curve.Item2));
+                group.Children.Add(curve.GetSVGElement());
             });
 
 
@@ -87,65 +85,41 @@ namespace TamplatesLabs2
             d.SetX(x2);
             d.SetY(y1);
 
-            AGraphicsAdaptor ga = new GraphicsAdaptor(Pens.Green);
+            AGraphicsAdaptor ga = new GraphicsAdaptor(Pens.Green, 5);
 
             Graphics g = panel.CreateGraphics();
 
-            g.Clear(Color.White);
+            //g.Clear(Color.White);
             
 
-            switch (Counter % 4)
+            List<VisualCurve> panelCurves;
+
+            if (panel == panel1)
             {
-                case 0:
-                    ga = new GraphicsAdaptorLinable(Pens.Black, 5);
-                    break;
-                case 1:
-                    ga = new GraphicsAdaptorLinable(Pens.Green, 5);
-                    break;
-                case 2:
-                    ga = new GraphicsAdaptor(Pens.Green);
-                    break;
-                case 3:
-                    ga = new GraphicsAdaptor(Pens.Red);
-                    break;
+                panelCurves = panel1Curves;
+                ga = new GraphicsAdaptor(Pens.Green, 5);
+            }
+            else
+            {
+                panelCurves = panel2Curves;
+                ga = new GraphicsAdaptor(Pens.Red, 15);
             }
 
-            Color Penсolor = Color.FromArgb(
-                ga.GetPen().Color.A,
-                ga.GetPen().Color.R,
-                ga.GetPen().Color.G,
-                ga.GetPen().Color.B
-                );
+            //panelCurves.Clear();
 
-
-            List<Tuple<VisualCurve, AGraphicsAdaptor>> panelCurves;
-
-            if (panel == panel1) panelCurves = panel1Curves;
-            else panelCurves = panel2Curves;
-
-            panelCurves.Clear();
-
-            switch (Counter % 3)
+            switch (Counter % 2)
             {
                 case 0:
                     VisualLine vl1 = new(new Line(a, b), ga);
                     vl1.Draw(g);
-                    panelCurves.Add(new Tuple<VisualCurve, AGraphicsAdaptor>(vl1, ga));
+                    panelCurves.Add(vl1);
                     break;
-
                 case 1:
-                    VisualLine vl2 = new VisualLine(new Line(c, d), ga);
-                    vl2.Draw(g);
-                    panelCurves.Add(new Tuple<VisualCurve, AGraphicsAdaptor>(vl2, ga));
-                    break;
-                case 2:
                     VisualBezier vb = new VisualBezier(new Bezier(a, c, d, b), ga);
 
                     vb.Draw(g);
-                    panelCurves.Add(new Tuple<VisualCurve, AGraphicsAdaptor>(vb, ga));
+                    panelCurves.Add(vb);
                     break;
-
-
             }
 
 
@@ -171,12 +145,11 @@ namespace TamplatesLabs2
 
             SvgGroup group = new SvgGroup();
 
-            var graphics = panel1.CreateGraphics();
 
             panel2Curves.ForEach(curve =>
             {
 
-                group.Children.Add(curve.Item1.GetSVGElement(curve.Item2));
+                group.Children.Add(curve.GetSVGElement());
             });
 
 

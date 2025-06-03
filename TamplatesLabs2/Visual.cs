@@ -38,23 +38,10 @@ namespace Visual
                 p.Color.B
                 );
         }
+        
+        public abstract void DrawCurve(ICurve c, Graphics g);
 
-        public Pen GetPen()
-        {
-            return (Pen)p.Clone();
-        }
-
-        public abstract void DrawPoint(IPoint point, Int32 r, Graphics g);
-
-        public abstract void DrawLine(Line l, Graphics g);
-        public abstract void DrawBezier(Bezier b, Graphics g);
-
-        public abstract SvgElement GetSVGLine(Line l);
-
-        public abstract SvgElement GetSVGBezier(Bezier b);
-
-        public abstract SvgElement GetSVGPoint(IPoint point, Int32 r);
-
+        public abstract SvgElement GetSVGElement(ICurve c);
 
     }
 
@@ -66,201 +53,82 @@ namespace Visual
         {
             this.graphicAdaptor = graphicAdaptor;
         }
-
-        protected void DrawLine(Line l, Graphics g)
-        {
-            graphicAdaptor.DrawLine(l, g);
+        public void DrawCurve(ICurve c, Graphics g) { 
+        
+            graphicAdaptor.DrawCurve(c,g);
         }
-        protected void DrawBezier(Bezier b, Graphics g)
-        {
-            graphicAdaptor.DrawBezier(b, g);
+        public SvgElement GetSVGElement(ICurve c) {
+            return graphicAdaptor.GetSVGElement(c);
         }
 
-        protected void DrawPoint(IPoint point, Int32 r, Graphics g)
-        {
-            graphicAdaptor.DrawPoint(point, r, g);
-        }
         public abstract void Draw(Graphics g);
 
         public abstract void GetPoint(double t, out IPoint p);
 
-        public abstract SvgElement GetSVGElement(AGraphicsAdaptor ga);
+        public abstract SvgElement GetSVGElement();
+
     }
 
     class GraphicsAdaptor : AGraphicsAdaptor
     {
-        public GraphicsAdaptor(Pen p): base(p) {
-        
-        }
-
-        public override void DrawLine(Line l, Graphics g)
-        {
-            System.Drawing.Point sp = new System.Drawing.Point((Int32)l.GetA().GetX(), (Int32)l.GetA().GetY());
-            System.Drawing.Point ep = new System.Drawing.Point((Int32)l.GetB().GetX(), (Int32)l.GetB().GetY());
-
-            g.DrawLine(p, sp, ep);
-        }
-
-        public override void DrawBezier(Bezier b, Graphics g)
-        {
-            System.Drawing.Point ap = new System.Drawing.Point((Int32)b.GetA().GetX(), (Int32)b.GetA().GetY());
-            System.Drawing.Point bp = new System.Drawing.Point((Int32)b.GetB().GetX(), (Int32)b.GetB().GetY());
-            System.Drawing.Point cp = new System.Drawing.Point((Int32)b.GetC().GetX(), (Int32)b.GetC().GetY());
-            System.Drawing.Point dp = new System.Drawing.Point((Int32)b.GetD().GetX(), (Int32)b.GetD().GetY());
-
-            g.DrawBezier(p, ap, cp, dp, bp);
-        }
-
-        public override void DrawPoint(IPoint point, Int32 r, Graphics g)
-        {
-            g.DrawEllipse(p, (UInt32)(point.GetX() - r / 2), (UInt32)(point.GetY() - r / 2), r, r);
-        }
-
-        
-
-        public override SvgElement GetSVGLine(Line l)
-        {
-            
-            return new SvgLine()
-            {
-                StartX = new SvgUnit(((float)l.GetA().GetX())),
-                StartY = new SvgUnit(((float)l.GetA().GetY())),
-                EndX = new SvgUnit(((float)l.GetB().GetX())),
-                EndY = new SvgUnit(((float)l.GetB().GetY())),
-                Stroke = new SvgColourServer(getPenColor()),
-                StrokeWidth = 1
-            };
-        }
-
-        public override SvgElement GetSVGBezier(Bezier b)
-        {
-
-            string pathData = $"M {b.GetA().GetX()},{b.GetA().GetY()}" +
-                $" C {b.GetC().GetX()},{b.GetC().GetY()}" +
-                $" {b.GetD().GetX()},{b.GetD().GetY()}" +
-                $" {b.GetB().GetX()},{b.GetB().GetY()}";
-
-
-            return new SvgPath
-            {
-                PathData = SvgPathBuilder.Parse(pathData),
-                Stroke = new SvgColourServer(getPenColor()),
-                Fill = SvgPaintServer.None
-            };
-        }
-
-        public override SvgElement GetSVGPoint(IPoint point, int r)
-        {
-            return new SvgCircle
-            {
-                CenterX = new SvgUnit(((float)point.GetX())),
-                CenterY = new SvgUnit(((float)point.GetY())),
-                Radius = r,
-                Stroke = new SvgColourServer(getPenColor()),
-                Fill = new SvgColourServer(Color.Transparent),
-                StrokeWidth = 1
-            };
-        }
-    }
-
-    class GraphicsAdaptorLinable : AGraphicsAdaptor
-    {
         private Int32 n;
-        public GraphicsAdaptorLinable(Pen p, Int32 n) : base(p) {
+        public GraphicsAdaptor(Pen p, Int32 n) : base(p) {
         
             this.n = n;
         }
 
 
-        public override void DrawLine(Line l, Graphics g)
+        public override void DrawCurve(ICurve c, Graphics g)
         {
-            System.Drawing.Point sp = new System.Drawing.Point((Int32)l.GetA().GetX(), (Int32)l.GetA().GetY());
-            System.Drawing.Point ep = new System.Drawing.Point((Int32)l.GetB().GetX(), (Int32)l.GetB().GetY());
 
-            g.DrawLine(p, sp, ep);
+            IPoint p1;
 
-            DrawPoint(l.GetA(), 4, g);
+            c.GetPoint(0,out p1);
 
-            DrawPoint(l.GetB(), 4, g);
-        }
-
-        public override void DrawBezier(Bezier b, Graphics g)
-        {
-            System.Drawing.Point Point1 = new System.Drawing.Point((Int32)b.GetA().GetX(), (Int32)b.GetA().GetY());
+            System.Drawing.Point Point1 = new System.Drawing.Point((Int32)p1.GetX(), (Int32)p1.GetY());
             System.Drawing.Point Point2 = new System.Drawing.Point();
-
-            IPoint tmpPoint;
-
-
-            DrawPoint(b.GetA(), 4, g);
-
-
 
             for (double i = 0; i < n; i++)
             {
-                b.GetPoint((i + 1) / n, out tmpPoint);
+                c.GetPoint((i + 1) / n, out p1);
 
                 if (i % 2 == 1)
                 {
-                    Point1.X = (Int32)tmpPoint.GetX();
-                    Point1.Y = (Int32)tmpPoint.GetY();
+                    Point1.X = (Int32)p1.GetX();
+                    Point1.Y = (Int32)p1.GetY();
                 }
                 else
                 {
-                    Point2.X = (Int32)tmpPoint.GetX();
-                    Point2.Y = (Int32)tmpPoint.GetY();
+                    Point2.X = (Int32)p1.GetX();
+                    Point2.Y = (Int32)p1.GetY();
                 }
 
-                g.DrawLine(Pens.Black, Point1, Point2);
+                g.DrawLine(p, Point1, Point2);
 
             }
 
-            b.GetPoint(1, out tmpPoint);
-
-            DrawPoint(b.GetB(), 4, g);
+            c.GetPoint(1, out p1);
 
         }
 
-        public override void DrawPoint(IPoint point, Int32 r, Graphics g)
-        {
-            g.DrawEllipse(p, (UInt32)(point.GetX() - r / 2), (UInt32)(point.GetY() - r / 2), r, r);
-        }
 
-        public override SvgElement GetSVGLine(Line l)
-        {
-
-            SvgGroup g = new SvgGroup();
-
-            g.Children.Add(GetSVGPoint(l.GetA(), 4));
-            g.Children.Add(GetSVGPoint(l.GetB(), 4));
-            g.Children.Add(new SvgLine()
-            {
-                StartX = new SvgUnit(((float)l.GetA().GetX())),
-                StartY = new SvgUnit(((float)l.GetA().GetY())),
-                EndX = new SvgUnit(((float)l.GetB().GetX())),
-                EndY = new SvgUnit(((float)l.GetB().GetY())),
-                Stroke = new SvgColourServer(getPenColor()),
-                StrokeWidth = 1
-            });
-
-            return g;
-        }
-
-        public override SvgElement GetSVGBezier(Bezier b)
+        public override SvgElement GetSVGElement(ICurve c)
         {
             SvgGroup g = new SvgGroup();
+            IPoint p1;
 
-            System.Drawing.Point Point1 = new System.Drawing.Point((Int32)b.GetA().GetX(), (Int32)b.GetA().GetY());
+            c.GetPoint(0, out p1);
+
+            System.Drawing.Point Point1 = new System.Drawing.Point((Int32)p1.GetX(), (Int32)p1.GetY());
             System.Drawing.Point Point2 = new System.Drawing.Point();
 
             IPoint tmpPoint;
 
-            g.Children.Add(GetSVGPoint(b.GetA(),4));
 
 
             for (double i = 0; i < n; i++)
             {
-                b.GetPoint((i + 1) / n, out tmpPoint);
+                c.GetPoint((i + 1) / n, out tmpPoint);
 
                 if (i % 2 == 1)
                 {
@@ -282,28 +150,14 @@ namespace Visual
                     Stroke = new SvgColourServer(getPenColor()),
                     StrokeWidth = 1
                 }
-                
+
                 );
 
 
             }
 
-            g.Children.Add(GetSVGPoint(b.GetB(), 4));
 
             return g;
-        }
-
-        public override SvgElement GetSVGPoint(IPoint point, int r)
-        {
-            return new SvgCircle
-            {
-                CenterX = new SvgUnit(((float)point.GetX())),
-                CenterY = new SvgUnit(((float)point.GetY())),
-                Radius = r,
-                Stroke = new SvgColourServer(getPenColor()),
-                Fill = new SvgColourServer(Color.Transparent),
-                StrokeWidth = 1
-            };
         }
     }
 
@@ -319,10 +173,7 @@ namespace Visual
 
         public override void Draw(Graphics g)
         {
-
-
-            DrawLine(l, g);
-
+            DrawCurve(l, g);
 
             Console.WriteLine("Draw Line");
         }
@@ -332,12 +183,10 @@ namespace Visual
             l.GetPoint(t, out p);
         }
 
-        public override SvgElement GetSVGElement(AGraphicsAdaptor ga)
+        public override SvgElement GetSVGElement()
         {
-            return ga.GetSVGLine(l);
+            return GetSVGElement(l);
         }
-
-
     }
 
     public class VisualBezier : VisualCurve
@@ -352,7 +201,7 @@ namespace Visual
         public override void Draw(Graphics g)
         {
 
-            DrawBezier(b, g);
+            DrawCurve(b, g);
 
 
             Console.WriteLine("Draw Bezier");
@@ -364,11 +213,10 @@ namespace Visual
             b.GetPoint(t, out p);
         }
 
-        public override SvgElement GetSVGElement(AGraphicsAdaptor ga)
+        public override SvgElement GetSVGElement()
         {
-            return ga.GetSVGBezier(b);
+            return GetSVGElement(b);
         }
-
     }
 }
 
